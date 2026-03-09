@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שעון עברי</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <p class="page-title">שעון עברי</p>
+
+    <div class="clock-border">
+        <div id="clock">
+            <span id="label">הַשָּׁעָה</span>
+            <span id="hours"></span>
+            <span id="minutes"></span>
+            <span id="seconds"></span>
+        </div>
+    </div>
+
+    <div class="alarm-border">
+        <div id="alarm-panel">
+            <label id="alarm-label">התראה</label>
+            <div id="alarm-controls">
+                <input id="alarm-input" type="text" maxlength="5" placeholder="08:00" dir="ltr" />
+                <button id="alarm-toggle" class="toggle-off" aria-label="הפעל התראה"></button>
+            </div>
+            <span id="alarm-status"></span>
+        </div>
+    </div>
+
+    <script src="clock.js"></script>
+
+</body>
+
+</html>

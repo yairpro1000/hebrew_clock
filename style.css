@@ -1,0 +1,341 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@300;400;700&family=Syne:wght@400;700&display=swap');
+
+@property --wave-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --teal: #0ff4c6;
+  --teal-dim: #00b894;
+  --teal-glow: #0ff4c680;
+  --black: #020408;
+  --black-mid: #050d10;
+  --border-radius: 28px;
+  --border-width: 3px;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--black);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, #001a1580 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, #00100a60 0%, transparent 60%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding-top: 2vh;
+  font-family: 'Syne', sans-serif;
+  direction: rtl;
+  overflow: hidden;
+}
+
+/* Subtle noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.page-title {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  color: var(--teal-dim);
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  opacity: 0.7;
+  position: relative;
+  z-index: 1;
+}
+
+/* Border wrapper — steady teal base, rainbow wave overlay */
+.clock-border {
+  position: relative;
+  border-radius: calc(var(--border-radius) + var(--border-width));
+  padding: var(--border-width);
+  background: var(--teal);
+  box-shadow: 0 0 18px var(--teal-glow), 0 0 40px #0ff4c618;
+  z-index: 1;
+  width: clamp(320px, 55vw, 720px);
+}
+
+/* Traveling rainbow wave on top of the teal border */
+.clock-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--wave-angle),
+    transparent 0deg,
+    transparent 295deg,
+    hsl(205, 80%, 68%)  306deg,
+    hsl(200, 65%, 80%)  316deg,
+    hsl(192, 45%, 90%)  326deg,
+    hsl(0,   0%,  100%) 336deg,
+    transparent 355deg
+  );
+  animation: spin-wave 6s linear infinite;
+}
+
+/* Traveling glow behind the wave */
+.clock-border::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: calc(var(--border-radius) + var(--border-width) + 8px);
+  background: conic-gradient(
+    from var(--wave-angle),
+    transparent 0deg,
+    transparent 295deg,
+    hsl(205, 80%, 68%)  306deg,
+    hsl(200, 65%, 80%)  316deg,
+    hsl(192, 45%, 90%)  326deg,
+    hsl(0,   0%,  100%) 336deg,
+    transparent 355deg
+  );
+  animation: spin-wave 6s linear infinite;
+  filter: blur(14px);
+  opacity: 0.55;
+  z-index: -1;
+}
+
+@keyframes spin-wave {
+  to { --wave-angle: 360deg; }
+}
+
+/* Inner clock card */
+#clock {
+  background: var(--black-mid);
+  border-radius: var(--border-radius);
+  padding: clamp(40px, 8vw, 80px) clamp(50px, 10vw, 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Subtle inner glow */
+#clock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--border-radius);
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, #0ff4c608 0%, transparent 70%);
+  pointer-events: none;
+}
+
+#label {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  font-weight: 300;
+  color: var(--teal-dim);
+  letter-spacing: 0.15em;
+  opacity: 0.6;
+  line-height: 1;
+}
+
+#hours {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 700;
+  color: var(--teal);
+  text-shadow:
+    0 0 20px var(--teal-glow),
+    0 0 60px #0ff4c630,
+    0 0 100px #0ff4c615;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+#minutes {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(1.4rem, 3.5vw, 2.6rem);
+  font-weight: 400;
+  color: var(--teal-dim);
+  text-shadow:
+    0 0 15px #00b89450,
+    0 0 40px #00b89420;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  min-height: 1.2em;
+}
+
+#seconds {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(0.85rem, 2vw, 1.3rem);
+  font-weight: 300;
+  color: var(--teal-dim);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  min-height: 1.2em;
+}
+
+/* Alarm panel */
+.alarm-border {
+  width: clamp(320px, 55vw, 720px);
+  margin-top: 1rem;
+  border-radius: calc(var(--border-radius) + var(--border-width));
+  padding: var(--border-width);
+  background: var(--teal);
+  box-shadow: 0 0 12px #0ff4c630;
+  z-index: 1;
+  position: relative;
+}
+
+#alarm-panel {
+  background: var(--black-mid);
+  border-radius: var(--border-radius);
+  padding: 1.4rem clamp(30px, 6vw, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+#alarm-label {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+  font-weight: 300;
+  color: var(--teal-dim);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+#alarm-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+}
+
+#alarm-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--teal-dim);
+  color: var(--teal);
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  text-align: center;
+  width: 5ch;
+  outline: none;
+  caret-color: var(--teal);
+  letter-spacing: 0.05em;
+  transition: border-color 0.2s;
+}
+
+#alarm-input::placeholder {
+  color: #0ff4c630;
+}
+
+#alarm-input:focus {
+  border-bottom-color: var(--teal);
+}
+
+#alarm-input.invalid {
+  border-bottom-color: #ff4d6d;
+  color: #ff4d6d;
+}
+
+/* Toggle button */
+#alarm-toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+
+#alarm-toggle.toggle-off {
+  background: #1a2e2a;
+  box-shadow: inset 0 0 0 1px var(--teal-dim);
+}
+
+#alarm-toggle.toggle-on {
+  background: var(--teal-dim);
+  box-shadow: 0 0 10px var(--teal-glow);
+}
+
+#alarm-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--teal);
+  transition: left 0.3s, background 0.3s;
+}
+
+#alarm-toggle.toggle-off::after {
+  left: 3px;
+  background: var(--teal-dim);
+  opacity: 0.5;
+}
+
+#alarm-toggle.toggle-on::after {
+  left: 23px;
+  background: #fff;
+  opacity: 1;
+}
+
+#alarm-status {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+  color: var(--teal-dim);
+  white-space: nowrap;
+  min-width: 4ch;
+  text-align: left;
+  opacity: 0.7;
+}
+
+/* Fade-in on load */
+.clock-border {
+  animation: spin-wave 6s linear infinite, fade-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.page-title {
+  animation: fade-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.alarm-border {
+  animation: fade-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
