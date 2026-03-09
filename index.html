@@ -11,6 +11,8 @@
 
 <body>
 
+    <button id="theme-toggle" aria-label="החלף מצב תאורה">☀️</button>
+
     <p class="page-title">שעון עברי</p>
 
     <div class="clock-border">
@@ -38,6 +40,18 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js');
         }
+
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light');
+            themeToggle.textContent = '🌙';
+        }
+        themeToggle.addEventListener('click', () => {
+            const isLight = document.body.classList.toggle('light');
+            themeToggle.textContent = isLight ? '🌙' : '☀️';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
     </script>
 
 </body>

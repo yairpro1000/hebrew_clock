@@ -20,6 +20,28 @@
   --black-mid: #050d10;
   --border-radius: 28px;
   --border-width: 3px;
+  --bg: var(--black);
+  --bg-mid: var(--black-mid);
+  --bg-grad-top: #001a1580;
+  --bg-grad-bottom: #00100a60;
+  --text-primary: var(--teal);
+  --text-secondary: var(--teal-dim);
+  --alarm-off-bg: #1a2e2a;
+  --alarm-off-shadow: inset 0 0 0 1px var(--teal-dim);
+}
+
+body.light {
+  --bg: #eff6ff;
+  --bg-mid: #f8faff;
+  --bg-grad-top: #bfdbfe80;
+  --bg-grad-bottom: #dbeafe60;
+  --text-primary: #0c2461;
+  --text-secondary: #1a3a8f;
+  --teal-glow: #1a3a8f50;
+  --alarm-off-bg: #dbeafe;
+  --alarm-off-shadow: inset 0 0 0 1px #1a3a8f;
+  --teal: #1a3a8f;
+  --teal-dim: #0c2461;
 }
 
 html, body {
@@ -27,10 +49,10 @@ html, body {
 }
 
 body {
-  background-color: var(--black);
+  background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% 0%, #001a1580 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 50% 100%, #00100a60 0%, transparent 60%);
+    radial-gradient(ellipse 80% 50% at 50% 0%, var(--bg-grad-top) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, var(--bg-grad-bottom) 0%, transparent 60%);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -58,7 +80,7 @@ body::before {
   font-size: clamp(0.75rem, 1.5vw, 1rem);
   font-weight: 300;
   letter-spacing: 0.3em;
-  color: var(--teal-dim);
+  color: var(--text-secondary);
   text-transform: uppercase;
   margin-bottom: 3rem;
   opacity: 0.7;
@@ -124,7 +146,7 @@ body::before {
 
 /* Inner clock card */
 #clock {
-  background: var(--black-mid);
+  background: var(--bg-mid);
   border-radius: var(--border-radius);
   padding: clamp(40px, 8vw, 80px) clamp(50px, 10vw, 120px);
   display: flex;
@@ -150,7 +172,7 @@ body::before {
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(0.8rem, 1.8vw, 1.1rem);
   font-weight: 300;
-  color: var(--teal-dim);
+  color: var(--text-secondary);
   letter-spacing: 0.15em;
   opacity: 0.6;
   line-height: 1;
@@ -160,7 +182,7 @@ body::before {
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(2.8rem, 7vw, 5.5rem);
   font-weight: 700;
-  color: var(--teal);
+  color: var(--text-primary);
   text-shadow:
     0 0 20px var(--teal-glow),
     0 0 60px #0ff4c630,
@@ -173,7 +195,7 @@ body::before {
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(1.4rem, 3.5vw, 2.6rem);
   font-weight: 400;
-  color: var(--teal-dim);
+  color: var(--text-secondary);
   text-shadow:
     0 0 15px #00b89450,
     0 0 40px #00b89420;
@@ -186,7 +208,7 @@ body::before {
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(0.85rem, 2vw, 1.3rem);
   font-weight: 300;
-  color: var(--teal-dim);
+  color: var(--text-secondary);
   line-height: 1;
   letter-spacing: 0.04em;
   min-height: 1.2em;
@@ -205,7 +227,7 @@ body::before {
 }
 
 #alarm-panel {
-  background: var(--black-mid);
+  background: var(--bg-mid);
   border-radius: var(--border-radius);
   padding: 1.4rem clamp(30px, 6vw, 80px);
   display: flex;
@@ -219,7 +241,7 @@ body::before {
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(0.85rem, 1.8vw, 1.05rem);
   font-weight: 300;
-  color: var(--teal-dim);
+  color: var(--text-secondary);
   letter-spacing: 0.1em;
   white-space: nowrap;
 }
@@ -235,8 +257,8 @@ body::before {
 #alarm-input {
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--teal-dim);
-  color: var(--teal);
+  border-bottom: 1px solid var(--text-secondary);
+  color: var(--text-primary);
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(1.1rem, 2.5vw, 1.6rem);
   font-weight: 400;
@@ -253,7 +275,8 @@ body::before {
 }
 
 #alarm-input:focus {
-  border-bottom-color: var(--teal);
+  border-bottom-color: var(--text-primary);
+  caret-color: var(--text-primary);
 }
 
 #alarm-input.invalid {
@@ -274,8 +297,8 @@ body::before {
 }
 
 #alarm-toggle.toggle-off {
-  background: #1a2e2a;
-  box-shadow: inset 0 0 0 1px var(--teal-dim);
+  background: var(--alarm-off-bg);
+  box-shadow: var(--alarm-off-shadow);
 }
 
 #alarm-toggle.toggle-on {
@@ -290,13 +313,13 @@ body::before {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--teal);
+  background: var(--text-primary);
   transition: left 0.3s, background 0.3s;
 }
 
 #alarm-toggle.toggle-off::after {
   left: 3px;
-  background: var(--teal-dim);
+  background: var(--text-secondary);
   opacity: 0.5;
 }
 
@@ -309,7 +332,7 @@ body::before {
 #alarm-status {
   font-family: 'Noto Serif Hebrew', serif;
   font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-  color: var(--teal-dim);
+  color: var(--text-secondary);
   white-space: nowrap;
   min-width: 4ch;
   text-align: left;
@@ -338,4 +361,33 @@ body::before {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Theme toggle button */
+#theme-toggle {
+  position: fixed;
+  top: 1.2rem;
+  left: 1.2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--text-secondary);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s, border-color 0.3s, color 0.3s;
+  z-index: 10;
+}
+
+#theme-toggle:hover {
+  opacity: 1;
+}
+
+body {
+  transition: background-color 0.4s, background-image 0.4s;
 }
