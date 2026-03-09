@@ -26,7 +26,7 @@
         <div id="alarm-panel">
             <label id="alarm-label">התראה</label>
             <div id="alarm-controls">
-                <input id="alarm-input" type="text" maxlength="5" placeholder="08:00" dir="ltr" />
+                <input id="alarm-input" type="text" inputmode="numeric" maxlength="5" placeholder="08:00" dir="ltr" />
                 <button id="alarm-toggle" class="toggle-off" aria-label="הפעל התראה"></button>
             </div>
             <span id="alarm-status"></span>
@@ -34,6 +34,11 @@
     </div>
 
     <script src="clock.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
 
 </body>
 
