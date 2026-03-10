@@ -58,6 +58,7 @@ function getHebrewTimePart(timePart) {
     const now = new Date();
 
     if (timePart === 'h') {
+        if (now.getHours() === 12) return hebrewTime.hours[12]; // שתים-עשרה
         let h = now.getHours() % 12;
         return hebrewTime.hours[h];
     }
