@@ -53,16 +53,16 @@ body {
   background-image:
     radial-gradient(ellipse 80% 50% at 50% 0%, var(--bg-grad-top) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 50% 100%, var(--bg-grad-bottom) 0%, transparent 60%);
-  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   flex-direction: column;
-  padding-top: 2vh;
+  gap: clamp(0.4rem, 1.6svh, 1rem);
+  padding: clamp(0.5rem, 2.5svh, 1.2rem) clamp(0.5rem, 2.5vw, 1.2rem);
   font-family: 'Syne', sans-serif;
   direction: rtl;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 /* Subtle noise texture overlay */
@@ -83,7 +83,7 @@ body::before {
   letter-spacing: 0.3em;
   color: var(--text-secondary);
   text-transform: uppercase;
-  margin-bottom: 3rem;
+  margin-bottom: 0;
   opacity: 0.7;
   position: relative;
   z-index: 1;
@@ -97,7 +97,7 @@ body::before {
   background: var(--teal);
   box-shadow: 0 0 18px var(--teal-glow), 0 0 40px #0ff4c618;
   z-index: 1;
-  width: clamp(320px, 55vw, 720px);
+  width: min(95vw, 720px);
 }
 
 /* Traveling rainbow wave on top of the teal border */
@@ -149,7 +149,7 @@ body::before {
 #clock {
   background: var(--bg-mid);
   border-radius: var(--border-radius);
-  padding: clamp(40px, 8vw, 80px) clamp(50px, 10vw, 120px);
+  padding: clamp(22px, 5svh, 48px) clamp(24px, 8vw, 90px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -181,7 +181,7 @@ body::before {
 
 #hours {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-size: clamp(2.2rem, 6vw, 4.7rem);
   font-weight: 700;
   color: var(--text-primary);
   text-shadow:
@@ -194,7 +194,7 @@ body::before {
 
 #minutes {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(1.4rem, 3.5vw, 2.6rem);
+  font-size: clamp(1.2rem, 3vw, 2.2rem);
   font-weight: 400;
   color: var(--text-secondary);
   text-shadow:
@@ -207,7 +207,7 @@ body::before {
 
 #seconds {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(0.85rem, 2vw, 1.3rem);
+  font-size: clamp(0.8rem, 1.8vw, 1.15rem);
   font-weight: 300;
   color: var(--text-secondary);
   line-height: 1;
@@ -217,8 +217,8 @@ body::before {
 
 /* Alarm panel */
 .alarm-border {
-  width: clamp(320px, 55vw, 720px);
-  margin-top: 1rem;
+  width: min(95vw, 720px);
+  margin-top: 0;
   border-radius: calc(var(--border-radius) + var(--border-width));
   padding: var(--border-width);
   background: var(--teal);
@@ -230,7 +230,7 @@ body::before {
 #alarm-panel {
   background: var(--bg-mid);
   border-radius: var(--border-radius);
-  padding: 1.4rem clamp(30px, 6vw, 80px);
+  padding: clamp(0.8rem, 2.3svh, 1.2rem) clamp(16px, 5vw, 56px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -255,32 +255,47 @@ body::before {
   justify-content: center;
 }
 
-#alarm-input {
-  background: transparent;
-  border: none;
+#alarm-time-input {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.15em;
   border-bottom: 1px solid var(--text-secondary);
+  padding-bottom: 0.1em;
+  min-width: 6.2ch;
+}
+
+.alarm-time-part {
+  background: transparent;
+  border: 0;
   color: var(--text-primary);
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-size: clamp(1.45rem, 3.6vw, 2.2rem);
   font-weight: 400;
   text-align: center;
-  width: 5ch;
+  width: 2.2ch;
   outline: none;
   caret-color: var(--teal);
   letter-spacing: 0.05em;
-  transition: border-color 0.2s;
+  transition: color 0.2s;
 }
 
-#alarm-input::placeholder {
+.alarm-time-part::placeholder {
   color: #0ff4c630;
 }
 
-#alarm-input:focus {
-  border-bottom-color: var(--text-primary);
+.alarm-time-part:focus {
   caret-color: var(--text-primary);
 }
 
-#alarm-input.invalid {
+.alarm-time-separator {
+  font-family: 'Noto Serif Hebrew', serif;
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+  color: var(--text-secondary);
+}
+
+.alarm-time-part.invalid,
+#alarm-time-input.invalid {
   border-bottom-color: #ff4d6d;
   color: #ff4d6d;
 }
@@ -361,6 +376,50 @@ body::before {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  body {
+    padding: 2svh 2vw;
+    gap: 0.45rem;
+  }
+
+  .page-title {
+    font-size: 0.74rem;
+    letter-spacing: 0.2em;
+  }
+
+  #clock {
+    padding: 16px clamp(18px, 6vw, 58px);
+    gap: 0.8rem;
+  }
+
+  #hours {
+    font-size: clamp(1.8rem, 5vw, 3.1rem);
+  }
+
+  #minutes {
+    font-size: clamp(1rem, 2.7vw, 1.55rem);
+  }
+
+  #seconds {
+    font-size: clamp(0.72rem, 1.7vw, 0.95rem);
+  }
+
+  #alarm-panel {
+    padding: 0.6rem clamp(12px, 4vw, 40px);
+  }
+
+  .alarm-time-part {
+    font-size: clamp(1.2rem, 2.8vw, 1.5rem);
+  }
+
+  #theme-toggle {
+    width: 34px;
+    height: 34px;
+    top: 0.55rem;
+    left: 0.55rem;
   }
 }
 

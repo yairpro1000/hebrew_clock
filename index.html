@@ -34,7 +34,11 @@
         <div id="alarm-panel">
             <label id="alarm-label">התראה</label>
             <div id="alarm-controls">
-                <input id="alarm-input" type="text" inputmode="numeric" maxlength="5" placeholder="08:00" dir="ltr" />
+                <div id="alarm-time-input" dir="ltr" aria-label="שעת התראה">
+                    <input id="alarm-hour-input" class="alarm-time-part" type="text" inputmode="numeric" maxlength="2" placeholder="08" aria-label="שעה" />
+                    <span class="alarm-time-separator" aria-hidden="true">:</span>
+                    <input id="alarm-minute-input" class="alarm-time-part" type="text" inputmode="numeric" maxlength="2" placeholder="00" aria-label="דקות" />
+                </div>
                 <button id="alarm-toggle" class="toggle-off" aria-label="הפעל התראה"></button>
             </div>
             <span id="alarm-status"></span>

@@ -86,7 +86,8 @@ setInterval(updateClock, 1000);
 
 // ── Alarm ─────────────────────────────────────────────────────────────────
 
-const alarmInput = document.getElementById('alarm-input');
+const alarmHourInput = document.getElementById('alarm-hour-input');
+const alarmMinuteInput = document.getElementById('alarm-minute-input');
 const alarmToggle = document.getElementById('alarm-toggle');
 const alarmStatus = document.getElementById('alarm-status');
 const alarmSound = new Audio('sound/morning_heb_meditation.mp3');
@@ -183,33 +184,146 @@ async function playAlarmAudio() {
 }
 
 function parseAlarmTime() {
-    if (!alarmInput) return null;
-    const val = alarmInput.value.trim();
-    const match = val.match(/^(\d{1,2}):(\d{2})$/);
-    if (!match) return null;
-    const h = Number.parseInt(match[1], 10);
-    const m = Number.parseInt(match[2], 10);
+    if (!alarmHourInput || !alarmMinuteInput) return null;
+    const hourDigits = alarmHourInput.value;
+    const minuteDigits = alarmMinuteInput.value;
+    if (hourDigits.length !== 2 || minuteDigits.length !== 2) return null;
+    const h = Number.parseInt(hourDigits, 10);
+    const m = Number.parseInt(minuteDigits, 10);
     if (h > 23 || m > 59) return null;
     return { h, m };
 }
 
 function validateAlarmInput() {
-    if (!alarmInput) return;
-    const val = alarmInput.value;
-    if (val === '') {
-        alarmInput.classList.remove('invalid');
-        return;
-    }
-    const parsed = parseAlarmTime();
-    alarmInput.classList.toggle('invalid', parsed === null);
+    if (!alarmHourInput || !alarmMinuteInput) return;
+
+    const h = alarmHourInput.value;
+    const m = alarmMinuteInput.value;
+
+    const hourInvalid = h.length > 0 && (h.length !== 2 || Number.parseInt(h, 10) > 23);
+    const minuteInvalid = m.length > 0 && (m.length !== 2 || Number.parseInt(m, 10) > 59);
+
+    alarmHourInput.classList.toggle('invalid', hourInvalid);
+    alarmMinuteInput.classList.toggle('invalid', minuteInvalid);
 }
 
-function formatAlarmInputValue() {
-    if (!alarmInput) return;
-    const digits = alarmInput.value.replace(/\D/g, '').slice(0, 4);
-    alarmInput.value = digits.length > 2
-        ? `${digits.slice(0, 2)}:${digits.slice(2)}`
-        : digits;
+function moveCursorToEnd(inputEl) {
+    const length = inputEl.value.length;
+    inputEl.setSelectionRange(length, length);
+}
+
+function appendDigitsToInput(inputEl, rawDigits, maxFirstDigit) {
+    const digits = rawDigits.replace(/\D/g, '');
+    if (!digits) return false;
+
+    let current = inputEl.value.replace(/\D/g, '').slice(0, 2);
+    if (current.length === 2) {
+        current = '';
+    }
+
+    for (const digit of digits) {
+        if (current.length >= 2) break;
+        if (current.length === 0 && Number.parseInt(digit, 10) > maxFirstDigit) {
+            continue;
+        }
+        if (inputEl === alarmHourInput && current.length === 1 && current[0] === '2' && Number.parseInt(digit, 10) > 3) {
+            continue;
+        }
+        current += digit;
+    }
+
+    inputEl.value = current;
+    moveCursorToEnd(inputEl);
+    return true;
+}
+
+function deleteLastDigit(inputEl) {
+    const current = inputEl.value.replace(/\D/g, '').slice(0, 2);
+    inputEl.value = current.slice(0, -1);
+    moveCursorToEnd(inputEl);
+}
+
+function handleAlarmPartInputChange(sourceInput) {
+    validateAlarmInput();
+    alarmFired = false;
+
+    if (sourceInput === alarmHourInput && alarmMinuteInput) {
+        if (alarmHourInput.value.length === 2) {
+            alarmMinuteInput.focus();
+            moveCursorToEnd(alarmMinuteInput);
+        }
+    }
+}
+
+function bindAlarmPartInput(inputEl) {
+    const maxFirstDigit = inputEl === alarmHourInput ? 2 : 5;
+
+    inputEl.addEventListener('focus', () => {
+        moveCursorToEnd(inputEl);
+    });
+
+    inputEl.addEventListener('click', () => {
+        moveCursorToEnd(inputEl);
+    });
+
+    inputEl.addEventListener('beforeinput', event => {
+        if (event.inputType === 'insertText' || event.inputType === 'insertCompositionText') {
+            const accepted = appendDigitsToInput(inputEl, event.data || '', maxFirstDigit);
+            event.preventDefault();
+            if (accepted) handleAlarmPartInputChange(inputEl);
+            return;
+        }
+
+        if (event.inputType === 'insertFromPaste' || event.inputType === 'insertReplacementText') {
+            const accepted = appendDigitsToInput(inputEl, event.data || '', maxFirstDigit);
+            event.preventDefault();
+            if (accepted) handleAlarmPartInputChange(inputEl);
+            return;
+        }
+
+        if (event.inputType === 'deleteContentBackward' || event.inputType === 'deleteContentForward') {
+            event.preventDefault();
+            deleteLastDigit(inputEl);
+            handleAlarmPartInputChange(inputEl);
+            return;
+        }
+
+        if (event.inputType.startsWith('insert')) {
+            event.preventDefault();
+        }
+    });
+
+    inputEl.addEventListener('paste', event => {
+        event.preventDefault();
+        const text = event.clipboardData?.getData('text') || '';
+        if (appendDigitsToInput(inputEl, text, maxFirstDigit)) {
+            handleAlarmPartInputChange(inputEl);
+        }
+    });
+
+    inputEl.addEventListener('keydown', event => {
+        if (event.key === 'Tab' || event.key === 'Shift' || event.key.startsWith('Arrow')) return;
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+        if (/^\d$/.test(event.key)) {
+            event.preventDefault();
+            if (appendDigitsToInput(inputEl, event.key, maxFirstDigit)) {
+                handleAlarmPartInputChange(inputEl);
+            }
+            return;
+        }
+
+        if (event.key === 'Backspace' || event.key === 'Delete') {
+            event.preventDefault();
+            deleteLastDigit(inputEl);
+            handleAlarmPartInputChange(inputEl);
+            return;
+        }
+
+        if (event.key.length === 1) {
+            event.preventDefault();
+        }
+    });
 }
 
 function alarm(time) {
@@ -231,18 +345,22 @@ function checkAlarm() {
     if (time) alarm(time);
 }
 
-if (alarmInput && alarmToggle && alarmStatus) {
-    alarmInput.addEventListener('input', () => {
-        formatAlarmInputValue();
-        validateAlarmInput();
-        alarmFired = false;
-    });
+if (alarmHourInput && alarmMinuteInput && alarmToggle && alarmStatus) {
+    bindAlarmPartInput(alarmHourInput);
+    bindAlarmPartInput(alarmMinuteInput);
+    validateAlarmInput();
 
     alarmToggle.addEventListener('click', () => {
         const time = parseAlarmTime();
         if (!alarmEnabled && !time) {
-            alarmInput.classList.add('invalid');
-            alarmInput.focus();
+            validateAlarmInput();
+            if (alarmHourInput.value.length < 2 || Number.parseInt(alarmHourInput.value || '0', 10) > 23) {
+                alarmHourInput.classList.add('invalid');
+                alarmHourInput.focus();
+            } else {
+                alarmMinuteInput.classList.add('invalid');
+                alarmMinuteInput.focus();
+            }
             return;
         }
 
@@ -273,7 +391,8 @@ if (alarmInput && alarmToggle && alarmStatus) {
     setInterval(checkAlarm, 1000);
 } else {
     console.error('[alarm] missing_ui_elements', {
-        hasInput: Boolean(alarmInput),
+        hasHourInput: Boolean(alarmHourInput),
+        hasMinuteInput: Boolean(alarmMinuteInput),
         hasToggle: Boolean(alarmToggle),
         hasStatus: Boolean(alarmStatus)
     });

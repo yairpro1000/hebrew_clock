@@ -1,4 +1,4 @@
-const CACHE = 'hebrew-clock-v3';
+const CACHE = 'hebrew-clock-v4';
 const ASSETS = [
     './',
     './index.html',
