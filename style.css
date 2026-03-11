@@ -59,7 +59,7 @@ body {
   justify-content: center;
   flex-direction: column;
   gap: clamp(0.4rem, 1.6svh, 1rem);
-  padding: clamp(0.5rem, 2.5svh, 1.2rem) clamp(0.5rem, 2.5vw, 1.2rem);
+  padding: clamp(0.5rem, 2.5svh, 1.2rem) clamp(0.2rem, 1vw, 0.5rem);
   font-family: 'Syne', sans-serif;
   direction: rtl;
   overflow: hidden;
@@ -78,13 +78,13 @@ body::before {
 
 .page-title {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  font-size: clamp(1.125rem, 2.25vw, 1.5rem);
   font-weight: 300;
   letter-spacing: 0.3em;
   color: var(--text-secondary);
   text-transform: uppercase;
-  margin-bottom: 0;
-  opacity: 0.7;
+  margin-bottom: 0.3rem;
+  opacity: 0.6;
   position: relative;
   z-index: 1;
 }
@@ -97,7 +97,7 @@ body::before {
   background: var(--teal);
   box-shadow: 0 0 18px var(--teal-glow), 0 0 40px #0ff4c618;
   z-index: 1;
-  width: min(95vw, 720px);
+  min-width: 70svw;
 }
 
 /* Traveling rainbow wave on top of the teal border */
@@ -171,17 +171,17 @@ body::before {
 
 #label {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  font-size: clamp(1.6rem, 3.6vw, 2.2rem);
   font-weight: 300;
   color: var(--text-secondary);
   letter-spacing: 0.15em;
-  opacity: 0.6;
+  opacity: 1;
   line-height: 1;
 }
 
 #hours {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(2.2rem, 6vw, 4.7rem);
+  font-size: clamp(4.4rem, 12vw, 9.4rem);
   font-weight: 700;
   color: var(--text-primary);
   text-shadow:
@@ -194,7 +194,7 @@ body::before {
 
 #minutes {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  font-size: clamp(2.4rem, 6vw, 4.4rem);
   font-weight: 400;
   color: var(--text-secondary);
   text-shadow:
@@ -207,7 +207,7 @@ body::before {
 
 #seconds {
   font-family: 'Noto Serif Hebrew', serif;
-  font-size: clamp(0.8rem, 1.8vw, 1.15rem);
+  font-size: clamp(1.6rem, 3.6vw, 2.3rem);
   font-weight: 300;
   color: var(--text-secondary);
   line-height: 1;
@@ -217,7 +217,7 @@ body::before {
 
 /* Alarm panel */
 .alarm-border {
-  width: min(95vw, 720px);
+  min-width: 70svw;
   margin-top: 0;
   border-radius: calc(var(--border-radius) + var(--border-width));
   padding: var(--border-width);
@@ -386,7 +386,7 @@ body::before {
   }
 
   .page-title {
-    font-size: 0.74rem;
+    font-size: 0.9rem;
     letter-spacing: 0.2em;
   }
 
@@ -396,15 +396,15 @@ body::before {
   }
 
   #hours {
-    font-size: clamp(1.8rem, 5vw, 3.1rem);
+    font-size: clamp(3.6rem, 10vw, 6.2rem);
   }
 
   #minutes {
-    font-size: clamp(1rem, 2.7vw, 1.55rem);
+    font-size: clamp(2rem, 5.4vw, 3.1rem);
   }
 
   #seconds {
-    font-size: clamp(0.72rem, 1.7vw, 0.95rem);
+    font-size: clamp(1.44rem, 3.4vw, 1.9rem);
   }
 
   #alarm-panel {
