@@ -70,11 +70,15 @@ function getHebrewTimePart(timePart) {
     }
 }
 
-function updateClock() {
-    document.getElementById("hours").textContent = getHebrewTimePart('h');
-    document.getElementById("minutes").textContent = getHebrewTimePart('m');
+const hoursEl = document.getElementById('hours');
+const minutesEl = document.getElementById('minutes');
+const secondsEl = document.getElementById('seconds');
 
-    document.getElementById("seconds").textContent = getHebrewTimePart('s');
+function updateClock() {
+    if (!hoursEl || !minutesEl || !secondsEl) return;
+    hoursEl.textContent = getHebrewTimePart('h');
+    minutesEl.textContent = getHebrewTimePart('m');
+    secondsEl.textContent = getHebrewTimePart('s');
 }
 
 updateClock();
@@ -82,25 +86,115 @@ setInterval(updateClock, 1000);
 
 // ── Alarm ─────────────────────────────────────────────────────────────────
 
-const alarmInput  = document.getElementById('alarm-input');
+const alarmInput = document.getElementById('alarm-input');
 const alarmToggle = document.getElementById('alarm-toggle');
 const alarmStatus = document.getElementById('alarm-status');
-const alarmSound  = new Audio('sound/morning_heb_meditation.mp3');
+const alarmSound = new Audio('sound/morning_heb_meditation.mp3');
+alarmSound.preload = 'auto';
+alarmSound.load();
 
+const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+let fallbackAudioContext = null;
 let alarmEnabled = false;
-let alarmFired   = false; // prevent re-triggering within the same minute
+let alarmFired = false; // prevent re-triggering within the same minute
+
+function setAlarmStatus(text) {
+    if (alarmStatus) {
+        alarmStatus.textContent = text;
+    }
+}
+
+function describeAlarmState() {
+    if (!alarmEnabled) return '';
+    return navigator.onLine ? 'פעיל' : 'פעיל (אופליין)';
+}
+
+function ensureFallbackAudioContext() {
+    if (!AudioContextCtor) return null;
+    if (!fallbackAudioContext) {
+        fallbackAudioContext = new AudioContextCtor();
+    }
+    if (fallbackAudioContext.state === 'suspended') {
+        fallbackAudioContext.resume().catch(() => {});
+    }
+    return fallbackAudioContext;
+}
+
+function playFallbackTone() {
+    const context = ensureFallbackAudioContext();
+    if (!context || context.state !== 'running') {
+        return false;
+    }
+
+    const start = context.currentTime;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.24, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.7);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+
+    oscillator.start(start);
+    oscillator.stop(start + 0.7);
+    return true;
+}
+
+async function primeAlarmAudio() {
+    alarmSound.muted = true;
+    try {
+        await alarmSound.play();
+        alarmSound.pause();
+        alarmSound.currentTime = 0;
+    } catch (error) {
+        console.warn('[alarm] prime_failed', {
+            online: navigator.onLine,
+            name: error?.name || 'unknown',
+            message: error?.message || 'unknown'
+        });
+    } finally {
+        alarmSound.muted = false;
+    }
+}
+
+async function playAlarmAudio() {
+    alarmSound.currentTime = 0;
+    try {
+        await alarmSound.play();
+        setAlarmStatus('🔔');
+        return;
+    } catch (error) {
+        console.warn('[alarm] media_play_failed', {
+            online: navigator.onLine,
+            name: error?.name || 'unknown',
+            message: error?.message || 'unknown'
+        });
+    }
+
+    if (playFallbackTone()) {
+        setAlarmStatus('🔔');
+        return;
+    }
+    setAlarmStatus('🔕');
+}
 
 function parseAlarmTime() {
+    if (!alarmInput) return null;
     const val = alarmInput.value.trim();
     const match = val.match(/^(\d{1,2}):(\d{2})$/);
     if (!match) return null;
-    const h = parseInt(match[1], 10);
-    const m = parseInt(match[2], 10);
+    const h = Number.parseInt(match[1], 10);
+    const m = Number.parseInt(match[2], 10);
     if (h > 23 || m > 59) return null;
     return { h, m };
 }
 
 function validateAlarmInput() {
+    if (!alarmInput) return;
     const val = alarmInput.value;
     if (val === '') {
         alarmInput.classList.remove('invalid');
@@ -110,18 +204,24 @@ function validateAlarmInput() {
     alarmInput.classList.toggle('invalid', parsed === null);
 }
 
+function formatAlarmInputValue() {
+    if (!alarmInput) return;
+    const digits = alarmInput.value.replace(/\D/g, '').slice(0, 4);
+    alarmInput.value = digits.length > 2
+        ? `${digits.slice(0, 2)}:${digits.slice(2)}`
+        : digits;
+}
+
 function alarm(time) {
     const now = new Date();
     if (now.getHours() === time.h && now.getMinutes() === time.m) {
         if (!alarmFired) {
             alarmFired = true;
-            alarmSound.currentTime = 0;
-            alarmSound.play();
-            alarmStatus.textContent = '🔔';
+            void playAlarmAudio();
         }
     } else {
         alarmFired = false;
-        alarmStatus.textContent = '';
+        setAlarmStatus(describeAlarmState());
     }
 }
 
@@ -131,34 +231,50 @@ function checkAlarm() {
     if (time) alarm(time);
 }
 
-alarmInput.addEventListener('input', () => {
-    // auto-insert colon after 2 digits
-    const val = alarmInput.value.replace(/\D/g, '');
-    if (val.length >= 3) {
-        alarmInput.value = val.slice(0, 2) + ':' + val.slice(2, 4);
-    }
-    validateAlarmInput();
-    alarmFired = false;
-});
+if (alarmInput && alarmToggle && alarmStatus) {
+    alarmInput.addEventListener('input', () => {
+        formatAlarmInputValue();
+        validateAlarmInput();
+        alarmFired = false;
+    });
 
-alarmToggle.addEventListener('click', () => {
-    const time = parseAlarmTime();
-    if (!alarmEnabled && !time) {
-        alarmInput.classList.add('invalid');
-        alarmInput.focus();
-        return;
-    }
-    alarmEnabled = !alarmEnabled;
-    alarmToggle.classList.toggle('toggle-on',  alarmEnabled);
-    alarmToggle.classList.toggle('toggle-off', !alarmEnabled);
-    if (!alarmEnabled) {
-        alarmSound.pause();
-        alarmSound.currentTime = 0;
-        alarmStatus.textContent = '';
-    } else {
-        alarmStatus.textContent = 'פעיל';
-    }
-    alarmFired = false;
-});
+    alarmToggle.addEventListener('click', () => {
+        const time = parseAlarmTime();
+        if (!alarmEnabled && !time) {
+            alarmInput.classList.add('invalid');
+            alarmInput.focus();
+            return;
+        }
 
-setInterval(checkAlarm, 1000);
+        alarmEnabled = !alarmEnabled;
+        alarmToggle.classList.toggle('toggle-on', alarmEnabled);
+        alarmToggle.classList.toggle('toggle-off', !alarmEnabled);
+
+        if (!alarmEnabled) {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            setAlarmStatus('');
+        } else {
+            void primeAlarmAudio();
+            ensureFallbackAudioContext();
+            setAlarmStatus(describeAlarmState());
+        }
+        alarmFired = false;
+    });
+
+    window.addEventListener('online', () => {
+        if (alarmEnabled) setAlarmStatus(describeAlarmState());
+    });
+
+    window.addEventListener('offline', () => {
+        if (alarmEnabled) setAlarmStatus(describeAlarmState());
+    });
+
+    setInterval(checkAlarm, 1000);
+} else {
+    console.error('[alarm] missing_ui_elements', {
+        hasInput: Boolean(alarmInput),
+        hasToggle: Boolean(alarmToggle),
+        hasStatus: Boolean(alarmStatus)
+    });
+}

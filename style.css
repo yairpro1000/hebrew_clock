@@ -61,7 +61,8 @@ body {
   padding-top: 2vh;
   font-family: 'Syne', sans-serif;
   direction: rtl;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Subtle noise texture overlay */
